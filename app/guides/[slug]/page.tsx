@@ -43,7 +43,7 @@ export default async function GuidePage({ params }: PageProps) {
           <div className="flex items-center h-16">
             <Link href="/" className="flex items-center gap-3">
               <Image
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="Lepak Gaming logo"
                 width={46}
                 height={46}
