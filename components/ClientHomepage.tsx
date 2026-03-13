@@ -2,9 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Search, Menu, X, Home, FileText, Book, HelpCircle, ChevronRight, ExternalLink, Gamepad2 } from 'lucide-react';
+import { Search, Menu, X, Home, FileText, Book, HelpCircle, ChevronRight, ExternalLink, Gamepad2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Article } from '@/lib/types';
 import Link from 'next/link';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 interface ClientHomepageProps {
   articles: Article[];
@@ -26,7 +31,8 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
     ? articles 
     : articles.filter(article => article.category === selectedCategory);
 
-  const featuredArticle = articles[0];
+  // Get top 5 articles for carousel
+  const featuredArticles = articles.slice(0, 5);
 
   const renderRating = (rating?: number) => {
     const safe = Math.max(0, Math.min(5, Number(rating ?? 0)));
@@ -137,40 +143,74 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Featured Article */}
-        {selectedCategory === 'all' && featuredArticle && (
+        {/* Featured Carousel */}
+        {selectedCategory === 'all' && featuredArticles.length > 0 && (
           <div className="mb-12">
             <h2 className="text-3xl font-bold mb-6">Featured</h2>
-            <Link href={`/${featuredArticle.category}/${featuredArticle.slug}`}>
-              <div className="relative rounded-xl overflow-hidden group cursor-pointer">
-                <img 
-                  src={featuredArticle.image} 
-                  alt={featuredArticle.title}
-                  className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <span className={`inline-block px-3 py-1 ${getBadgeColor(featuredArticle.type)} rounded-full text-xs font-semibold mb-3`}>
-                    {getBadgeText(featuredArticle)}
-                  </span>
-                  <h3 className="text-4xl font-bold mb-3">{featuredArticle.title}</h3>
-                  <p className="text-gray-300 text-lg mb-4">{featuredArticle.excerpt}</p>
-                  <div className="flex items-center text-sm text-gray-400">
-                    <span>{featuredArticle.author}</span>
-                    <span className="mx-2">•</span>
-                    <span>{new Date(featuredArticle.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    <span className="mx-2">•</span>
-                    <span>{featuredArticle.platform}</span>
-                    {featuredArticle.category === 'reviews' && (
-                      <>
-                        <span className="mx-2">•</span>
-                        {renderRating(featuredArticle.rating)}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Link>
+            <div className="relative group">
+              <Swiper
+                modules={[Autoplay, Pagination, Navigation]}
+                spaceBetween={0}
+                slidesPerView={1}
+                autoplay={{
+                  delay: 3000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }}
+                pagination={{
+                  type: 'progressbar',
+                }}
+                navigation={{
+                  prevEl: '.featured-prev',
+                  nextEl: '.featured-next',
+                }}
+                loop={true}
+                className="rounded-xl overflow-hidden"
+              >
+                {featuredArticles.map((article) => (
+                  <SwiperSlide key={article.slug}>
+                    <Link href={`/${article.category}/${article.slug}`}>
+                      <div className="relative group cursor-pointer">
+                        <img 
+                          src={article.image} 
+                          alt={article.title}
+                          className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                        <div className="absolute bottom-0 left-0 right-0 p-8">
+                          <span className={`inline-block px-3 py-1 ${getBadgeColor(article.type)} rounded-full text-xs font-semibold mb-3`}>
+                            {getBadgeText(article)}
+                          </span>
+                          <h3 className="text-4xl font-bold mb-3">{article.title}</h3>
+                          <p className="text-gray-300 text-lg mb-4">{article.excerpt}</p>
+                          <div className="flex items-center text-sm text-gray-400">
+                            <span>{article.author}</span>
+                            <span className="mx-2">•</span>
+                            <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <span className="mx-2">•</span>
+                            <span>{article.platform}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              {/* Custom sleek nav buttons */}
+              <button
+                className="featured-prev absolute left-4 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur border border-white/20 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 opacity-0 group-hover:opacity-100"
+                aria-label="Previous slide"
+              >
+                <ArrowLeft size={18} strokeWidth={2.4} />
+              </button>
+              <button
+                className="featured-next absolute right-4 top-1/2 -translate-y-1/2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur border border-white/20 text-white transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500 opacity-0 group-hover:opacity-100"
+                aria-label="Next slide"
+              >
+                <ArrowRight size={18} strokeWidth={2.4} />
+              </button>
+            </div>
           </div>
         )}
 
