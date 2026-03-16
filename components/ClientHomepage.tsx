@@ -11,7 +11,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 import { Article } from "@/lib/types";
-import SiteHeader from "./SiteHeader";
+import SiteHeader, { CategoryId } from "./SiteHeader";
 
 interface ClientHomepageProps {
   articles: Article[];
@@ -20,7 +20,7 @@ interface ClientHomepageProps {
 export default function ClientHomepage({ articles }: ClientHomepageProps) {
   const pathname = usePathname();
 
-  const categories = [
+  const categories: { id: CategoryId; name: string; href: string }[] = [
     { id: "all", name: "All", href: "/" },
     { id: "reviews", name: "Reviews", href: "/reviews" },
     { id: "news", name: "News", href: "/news" },
@@ -28,7 +28,7 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
     { id: "tips-tricks", name: "Tips & Tricks", href: "/tips-tricks" },
   ];
 
-  const activeCategory = useMemo(() => {
+  const activeCategory = useMemo<CategoryId>(() => {
     if (!pathname || pathname === "/") return "all";
     const match = categories.find(
       (cat) => cat.id !== "all" && pathname.startsWith(`/${cat.id}`)

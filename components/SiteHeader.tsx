@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Home, FileText, Book, HelpCircle, Search, Menu, X } from "lucide-react";
 
-type CategoryId = "all" | "reviews" | "news" | "guides" | "tips-tricks";
+export type CategoryId = "all" | "reviews" | "news" | "guides" | "tips-tricks";
 
 interface SiteHeaderProps {
   activeCategory?: CategoryId;
