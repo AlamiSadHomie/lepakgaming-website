@@ -1,15 +1,30 @@
-'use client';
+﻿"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { Search, Menu, X, Home, FileText, Book, HelpCircle, ChevronRight, ExternalLink, Gamepad2, ArrowLeft, ArrowRight } from 'lucide-react';
-import { Article } from '@/lib/types';
-import Link from 'next/link';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+import React, { useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Search,
+  Menu,
+  X,
+  Home,
+  FileText,
+  Book,
+  HelpCircle,
+  ChevronRight,
+  ExternalLink,
+  Gamepad2,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+
+import { Article } from "@/lib/types";
 
 interface ClientHomepageProps {
   articles: Article[];
@@ -17,22 +32,26 @@ interface ClientHomepageProps {
 
 export default function ClientHomepage({ articles }: ClientHomepageProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const pathname = usePathname();
 
   const categories = [
-    { id: 'all', name: 'All', icon: Home },
-    { id: 'reviews', name: 'Reviews', icon: FileText },
-    { id: 'news', name: 'News', icon: FileText },
-    { id: 'guides', name: 'Guides', icon: Book },
-    { id: 'tips-tricks', name: 'Tips & Tricks', icon: HelpCircle },
+    { id: "all", name: "All", icon: Home, href: "/" },
+    { id: "reviews", name: "Reviews", icon: FileText, href: "/reviews" },
+    { id: "news", name: "News", icon: FileText, href: "/news" },
+    { id: "guides", name: "Guides", icon: Book, href: "/guides" },
+    { id: "tips-tricks", name: "Tips & Tricks", icon: HelpCircle, href: "/tips-tricks" },
   ];
 
-  const filteredArticles = selectedCategory === 'all' 
-    ? articles 
-    : articles.filter(article => article.category === selectedCategory);
+  const activeCategory = useMemo(() => {
+    if (!pathname || pathname === "/") return "all";
+    const match = categories.find(
+      (cat) => cat.id !== "all" && pathname.startsWith(`/${cat.id}`)
+    );
+    return match?.id ?? "all";
+  }, [pathname]);
 
-  // Get top 5 articles for carousel
   const featuredArticles = articles.slice(0, 5);
+  const filteredArticles = articles;
 
   const renderRating = (rating?: number) => {
     const safe = Math.max(0, Math.min(5, Number(rating ?? 0)));
@@ -42,7 +61,7 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
           <Gamepad2
             key={idx}
             size={14}
-            className={idx < safe ? 'text-purple-400' : 'text-gray-600'}
+            className={idx < safe ? "text-purple-400" : "text-gray-600"}
             strokeWidth={idx < safe ? 2.4 : 1.6}
           />
         ))}
@@ -50,15 +69,15 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
     );
   };
 
-  const getBadgeColor = (type: string) => {
-    return type === 'original' ? 'bg-purple-600' : 'bg-blue-600';
-  };
+  const getBadgeColor = (type: string) =>
+    type === "original" ? "bg-purple-600" : "bg-blue-600";
 
   const getBadgeText = (article: Article) => {
-    if (article.type === 'original') {
-      return '📝 ORIGINAL';
+    if (article.type === "original") {
+      return "ORIGINAL";
     }
-    return `📰 FROM ${article.source?.toUpperCase()}`;
+    const source = article.source ? article.source.toUpperCase() : "SOURCE";
+    return `FROM ${source}`;
   };
 
   return (
@@ -84,20 +103,20 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
-              {categories.map(cat => (
-                <button
+              {categories.map((cat) => (
+                <Link
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  aria-label={cat.id === 'all' ? 'Home' : cat.name}
+                  href={cat.href}
+                  aria-label={cat.id === "all" ? "Home" : cat.name}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition flex items-center justify-center gap-2 ${
-                    selectedCategory === cat.id
-                      ? 'bg-purple-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-700'
+                    activeCategory === cat.id
+                      ? "bg-purple-600 text-white"
+                      : "text-gray-300 hover:bg-gray-700"
                   }`}
                 >
-                  {cat.id === 'all' ? <Home size={18} aria-hidden /> : cat.name}
-                  {cat.id === 'all' && <span className="sr-only">Home</span>}
-                </button>
+                  {cat.id === "all" ? <Home size={18} aria-hidden /> : cat.name}
+                  {cat.id === "all" && <span className="sr-only">Home</span>}
+                </Link>
               ))}
             </nav>
 
@@ -106,7 +125,7 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
               <button className="p-2 rounded-lg hover:bg-gray-700 transition">
                 <Search size={20} />
               </button>
-              <button 
+              <button
                 className="md:hidden p-2 rounded-lg hover:bg-gray-700 transition"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
@@ -118,23 +137,21 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
           {/* Mobile Menu */}
           {isMenuOpen && (
             <div className="md:hidden py-4 space-y-2">
-              {categories.map(cat => (
-                <button
+              {categories.map((cat) => (
+                <Link
                   key={cat.id}
-                  onClick={() => {
-                    setSelectedCategory(cat.id);
-                    setIsMenuOpen(false);
-                  }}
-                  aria-label={cat.id === 'all' ? 'Home' : cat.name}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${
-                    selectedCategory === cat.id
-                      ? 'bg-purple-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-700'
+                  href={cat.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label={cat.id === "all" ? "Home" : cat.name}
+                  className={`w-full block px-3 py-2 rounded-md text-sm font-medium transition flex items-center gap-2 ${
+                    activeCategory === cat.id
+                      ? "bg-purple-600 text-white"
+                      : "text-gray-300 hover:bg-gray-700"
                   }`}
                 >
-                  {cat.id === 'all' ? <Home size={18} aria-hidden /> : cat.name}
-                  {cat.id === 'all' && <span className="sr-only">Home</span>}
-                </button>
+                  {cat.id === "all" ? <Home size={18} aria-hidden /> : cat.name}
+                  {cat.id === "all" && <span className="sr-only">Home</span>}
+                </Link>
               ))}
             </div>
           )}
@@ -144,7 +161,7 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Featured Carousel */}
-        {selectedCategory === 'all' && featuredArticles.length > 0 && (
+        {activeCategory === "all" && featuredArticles.length > 0 && (
           <div className="mb-12">
             <h2 className="text-3xl font-bold mb-6">Featured</h2>
             <div className="relative group">
@@ -158,27 +175,29 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
                   pauseOnMouseEnter: true,
                 }}
                 pagination={{
-                  type: 'progressbar',
+                  type: "progressbar",
                 }}
                 navigation={{
-                  prevEl: '.featured-prev',
-                  nextEl: '.featured-next',
+                  prevEl: ".featured-prev",
+                  nextEl: ".featured-next",
                 }}
-                loop={true}
+                loop
                 className="rounded-xl overflow-hidden"
               >
                 {featuredArticles.map((article) => (
                   <SwiperSlide key={article.slug}>
                     <Link href={`/${article.category}/${article.slug}`}>
                       <div className="relative group cursor-pointer">
-                        <img 
-                          src={article.image} 
+                        <img
+                          src={article.image}
                           alt={article.title}
                           className="w-full h-96 object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-8">
-                          <span className={`inline-block px-3 py-1 ${getBadgeColor(article.type)} rounded-full text-xs font-semibold mb-3`}>
+                          <span
+                            className={`inline-block px-3 py-1 ${getBadgeColor(article.type)} rounded-full text-xs font-semibold mb-3`}
+                          >
                             {getBadgeText(article)}
                           </span>
                           <h3 className="text-4xl font-bold mb-3">{article.title}</h3>
@@ -186,7 +205,13 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
                           <div className="flex items-center text-sm text-gray-400">
                             <span>{article.author}</span>
                             <span className="mx-2">•</span>
-                            <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <span>
+                              {new Date(article.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>
                             <span className="mx-2">•</span>
                             <span>{article.platform}</span>
                           </div>
@@ -217,9 +242,11 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
         {/* Article Grid */}
         <div>
           <h2 className="text-3xl font-bold mb-6">
-            {selectedCategory === 'all' ? 'Latest Articles' : categories.find(c => c.id === selectedCategory)?.name}
+            {activeCategory === "all"
+              ? "Latest Articles"
+              : categories.find((c) => c.id === activeCategory)?.name}
           </h2>
-          
+
           {filteredArticles.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p className="text-xl">No articles yet in this category.</p>
@@ -227,19 +254,21 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredArticles.map(article => (
-                <article 
+              {filteredArticles.map((article) => (
+                <article
                   key={article.slug}
                   className="bg-gray-800 rounded-xl overflow-hidden hover:transform hover:scale-105 transition-all duration-300"
                 >
                   <Link href={`/${article.category}/${article.slug}`}>
                     <div className="relative cursor-pointer">
-                      <img 
-                        src={article.image} 
+                      <img
+                        src={article.image}
                         alt={article.title}
                         className="w-full h-48 object-cover"
                       />
-                      <span className={`absolute top-3 left-3 px-3 py-1 ${getBadgeColor(article.type)} rounded-full text-xs font-semibold flex items-center gap-1`}>
+                      <span
+                        className={`absolute top-3 left-3 px-3 py-1 ${getBadgeColor(article.type)} rounded-full text-xs font-semibold flex items-center gap-1`}
+                      >
                         {getBadgeText(article)}
                       </span>
                     </div>
@@ -247,22 +276,25 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
                       <h3 className="text-xl font-bold mb-2 line-clamp-2 hover:text-purple-400 transition">
                         {article.title}
                       </h3>
-                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                        {article.excerpt}
-                      </p>
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">{article.excerpt}</p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         <div>
                           <span className="font-medium">{article.author}</span>
                           <span className="mx-2">•</span>
-                          <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                          {article.category === 'reviews' && (
+                          <span>
+                            {new Date(article.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                          {article.category === "reviews" && (
                             <span className="ml-2 inline-flex items-center gap-2">
                               <span className="text-gray-600">•</span>
                               {renderRating(article.rating)}
                             </span>
                           )}
                         </div>
-                        {article.type === 'curated' ? (
+                        {article.type === "curated" ? (
                           <ExternalLink size={16} className="text-blue-500" />
                         ) : (
                           <ChevronRight size={16} className="text-purple-500" />

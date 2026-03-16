@@ -1,8 +1,9 @@
-﻿import { getArticleBySlug, getAllArticles } from '@/lib/markdown';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeft, Calendar, User, Monitor, ExternalLink } from 'lucide-react';
+﻿import { getArticleBySlug, getAllArticles } from "@/lib/markdown";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowLeft, Calendar, User, Monitor, ExternalLink, Home, Search } from "lucide-react";
+import Breadcrumb from "@/components/Breadcrumb";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -10,30 +11,54 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const articles = getAllArticles();
-  const guides = articles.filter(article => article.category === 'guides');
-  return guides.map(article => ({ slug: article.slug }));
+  const guides = articles.filter((article) => article.category === "guides");
+  return guides.map((article) => ({ slug: article.slug }));
 }
 
 export default async function GuidePage({ params }: PageProps) {
   const { slug } = await params;
-  const article = await getArticleBySlug('guides', slug);
+  const article = await getArticleBySlug("guides", slug);
 
   if (!article) {
     notFound();
   }
 
-  const getBadgeColor = (type: string) => (type === 'original' ? 'bg-purple-600' : 'bg-blue-600');
-  const getBadgeText = (article: any) => (article.type === 'original' ? 'ORIGINAL GUIDE' : `FROM ${article.source?.toUpperCase()}`);
+  const getBadgeColor = (type: string) => (type === "original" ? "bg-purple-600" : "bg-blue-600");
+  const getBadgeText = (article: any) => (article.type === "original" ? "ORIGINAL GUIDE" : `FROM ${article.source?.toUpperCase()}`);
+  const categories = [
+    { id: "home", name: "Home", href: "/", icon: Home },
+    { id: "reviews", name: "Reviews", href: "/reviews" },
+    { id: "news", name: "News", href: "/news" },
+    { id: "guides", name: "Guides", href: "/guides" },
+    { id: "tips-tricks", name: "Tips & Tricks", href: "/tips-tricks" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16">
+          <div className="flex items-center gap-4 h-16">
             <Link href="/" className="flex items-center gap-3">
               <Image src="/images/logo.png" alt="Lepak Gaming logo" width={46} height={46} className="h-[46px] w-[46px] rounded-md object-contain" priority />
               <span className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Lepak Gaming</span>
             </Link>
+            <nav className="flex flex-1 items-center justify-center gap-2 text-sm">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={cat.href}
+                  className={`px-3 py-2 rounded-md font-medium transition flex items-center gap-2 ${
+                    cat.id === "guides" ? "bg-purple-600 text-white" : "text-gray-300 hover:bg-gray-700"
+                  }`}
+                >
+                  {cat.icon && <cat.icon size={16} aria-hidden className="shrink-0" />}
+                  {!cat.icon && cat.name}
+                </Link>
+              ))}
+            </nav>
+            <button className="p-2 rounded-lg hover:bg-gray-700 transition text-gray-200">
+              <Search size={20} />
+            </button>
           </div>
         </div>
       </header>
@@ -43,6 +68,14 @@ export default async function GuidePage({ params }: PageProps) {
           <ArrowLeft size={20} className="mr-2" />
           Back to Home
         </Link>
+
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            { label: "Guides", href: "/guides" },
+            { label: article.title },
+          ]}
+        />
 
         <div className="mb-6">
           <span className={`inline-block px-4 py-2 ${getBadgeColor(article.type)} rounded-full text-sm font-semibold`}>
@@ -59,7 +92,7 @@ export default async function GuidePage({ params }: PageProps) {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={18} />
-            <span>{new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            <span>{new Date(article.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
           </div>
           <div className="flex items-center gap-2">
             <Monitor size={18} />
@@ -85,7 +118,7 @@ export default async function GuidePage({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
-        {article.type === 'curated' && article.sourceUrl && (
+        {article.type === "curated" && article.sourceUrl && (
           <div className="mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700">
             <p className="text-gray-400 mb-4">This article was curated from {article.source}. Read the original article for the complete story.</p>
             <a
