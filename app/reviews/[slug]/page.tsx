@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, User, Monitor, ExternalLink, Gamepad2 } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import SiteHeader from "@/components/SiteHeader";
-import BackToTop from '@/components/BackToTop';
+import CopyCodeButton from "@/components/CopyCodeButton";
+import BackToTop from "@/components/BackToTop";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,7 +26,8 @@ export default async function ReviewPage({ params }: PageProps) {
   }
 
   const getBadgeColor = (type: string) => (type === "original" ? "bg-purple-600" : "bg-blue-600");
-  const getBadgeText = (article: any) => (article.type === "original" ? "ORIGINAL REVIEW" : `FROM ${article.source?.toUpperCase()}`);
+  const getBadgeText = (article: any) =>
+    article.type === "original" ? "ORIGINAL REVIEW" : `FROM ${article.source?.toUpperCase()}`;
   const rating = Math.max(0, Math.min(5, Number(article.rating ?? 0)));
 
   return (
@@ -33,7 +35,10 @@ export default async function ReviewPage({ params }: PageProps) {
       <SiteHeader activeCategory="reviews" />
 
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link href="/" className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-8 transition">
+        <Link
+          href="/"
+          className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-8 transition"
+        >
           <ArrowLeft size={20} className="mr-2" />
           Back to Home
         </Link>
@@ -47,7 +52,11 @@ export default async function ReviewPage({ params }: PageProps) {
         />
 
         <div className="mb-6">
-          <span className={`inline-block px-4 py-2 ${getBadgeColor(article.type)} rounded-full text-sm font-semibold`}>
+          <span
+            className={`inline-block px-4 py-2 ${getBadgeColor(
+              article.type
+            )} rounded-full text-sm font-semibold`}
+          >
             {getBadgeText(article)}
           </span>
         </div>
@@ -61,7 +70,13 @@ export default async function ReviewPage({ params }: PageProps) {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={18} />
-            <span>{new Date(article.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+            <span>
+              {new Date(article.date).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Monitor size={18} />
@@ -71,7 +86,7 @@ export default async function ReviewPage({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <span className="text-lg">⏱</span>
               <span className="text-purple-400 font-medium">{article.readingTime} min read</span>
-          </div>
+            </div>
           )}
           <div className="flex items-center gap-2">
             <Gamepad2 size={18} />
@@ -106,9 +121,13 @@ export default async function ReviewPage({ params }: PageProps) {
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
+        <CopyCodeButton />
+
         {article.type === "curated" && article.sourceUrl && (
           <div className="mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700">
-            <p className="text-gray-400 mb-4">This article was curated from {article.source}. Read the original article for the complete story.</p>
+            <p className="text-gray-400 mb-4">
+              This article was curated from {article.source}. Read the original article for the complete story.
+            </p>
             <a
               href={article.sourceUrl}
               target="_blank"

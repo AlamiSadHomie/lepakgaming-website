@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, User, Monitor, ExternalLink } from "lucide-react";
 import Breadcrumb from "@/components/Breadcrumb";
 import SiteHeader from "@/components/SiteHeader";
+import CopyCodeButton from "@/components/CopyCodeButton";
 import BackToTop from "@/components/BackToTop";
 
 interface PageProps {
@@ -109,6 +110,8 @@ export default async function TipsTricksPage({ params }: PageProps) {
           "
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
+
+        <CopyCodeButton />
 
         {article.type === "curated" && article.sourceUrl && (
           <div className="mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700">
