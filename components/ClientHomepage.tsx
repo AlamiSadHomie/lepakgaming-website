@@ -134,6 +134,14 @@ export default function ClientHomepage({ articles }: ClientHomepageProps) {
                                 <span className="text-purple-200">⏱ {article.readingTime} min read</span>
                               </>
                             )}
+                            {article.category === "reviews" && (
+                              <>
+                                <span className="mx-2">•</span>
+                                <span className="inline-flex items-center gap-2 text-purple-200">
+                                  {renderRating(article.rating)}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
