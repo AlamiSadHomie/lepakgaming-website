@@ -1,21 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, X } from "lucide-react";
-
-interface Article {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  image: string;
-  type: string;
-  readingTime?: string;
-}
+import type { Article } from "@/lib/types";
 
 interface SearchClientProps {
   articles: Article[];
