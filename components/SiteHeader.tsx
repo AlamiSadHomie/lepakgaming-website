@@ -70,9 +70,9 @@ export default function SiteHeader({ activeCategory }: SiteHeaderProps) {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 rounded-lg hover:bg-gray-700 transition" aria-label="Search">
+            <Link href="/search" className="p-2 rounded-lg hover:bg-gray-700 transition" aria-label="Search">
               <Search size={20} />
-            </button>
+            </Link>
             <button
               className="md:hidden p-2 rounded-lg hover:bg-gray-700 transition"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
