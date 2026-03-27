@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import SiteHeader from "@/components/SiteHeader";
 import CopyCodeButton from "@/components/CopyCodeButton";
 import BackToTop from "@/components/BackToTop";
+import ShareButtons from "@/components/ShareButtons";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -112,6 +113,7 @@ export default async function TipsTricksPage({ params }: PageProps) {
         />
 
         <CopyCodeButton />
+        <ShareButtons title={article.title} />
 
         {article.type === "curated" && article.sourceUrl && (
           <div className="mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700">
